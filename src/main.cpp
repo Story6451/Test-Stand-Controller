@@ -4,16 +4,16 @@
 const uint8_t OxServoPin = 1;
 const uint8_t FuServoPin = 2;
 const uint8_t IgniterPin = 3;
-const uint8_t ServoArmingButtonPin = 4;//
-const uint8_t ServoArmingLEDPin = 5;//
-const uint8_t IgniterArmingButtonPin = 6;//
-const uint8_t IgniterArmingLEDPin = 7;//
-const uint8_t TestFiringArmingButtonPin = 8;//
-const uint8_t TestFiringArmingLEDPPin = 9;//
-const uint8_t OxServoButtonPin = 10;//
-const uint8_t FuServoButtonPin = 11;//
-const uint8_t IgniterButtonPin = 12;//
-const uint8_t TestFireButtonPin = 13;//
+const uint8_t ServoArmingSwitchPin = 4;
+const uint8_t ServoArmingLEDPin = 5;
+const uint8_t IgniterArmingButtonPin = 6;
+const uint8_t IgniterArmingLEDPin = 7;
+const uint8_t TestFiringArmingSwitchPin = 8;
+const uint8_t TestFiringArmingLEDPPin = 9;
+const uint8_t OxServoSwitchPin = 10;
+const uint8_t FuServoSwitchPin = 11;
+const uint8_t IgniterButtonPin = 12;
+const uint8_t TestFireSwitchPin = 13;
 
 bool ServoArmed = false;
 bool IgniterArmed = false;
@@ -28,24 +28,49 @@ void setup()
   OxServo.attach(OxServoPin);
 
   pinMode(IgniterPin, OUTPUT);
-  pinMode(ServoArmingButtonPin, INPUT);
+  pinMode(ServoArmingSwitchPin, INPUT);
   pinMode(IgniterArmingButtonPin, INPUT);
-  pinMode(TestFiringArmingButtonPin, INPUT);
-  pinMode(OxServoButtonPin, INPUT);
-  pinMode(FuServoButtonPin, INPUT);
+  pinMode(TestFiringArmingSwitchPin, INPUT);
+  pinMode(OxServoSwitchPin, INPUT);
+  pinMode(FuServoSwitchPin, INPUT);
   pinMode(IgniterButtonPin, INPUT);
-  pinMode(TestFireButtonPin, INPUT);
+  pinMode(TestFireSwitchPin, INPUT);
 
   pinMode(ServoArmingLEDPin, OUTPUT);
   pinMode(IgniterArmingLEDPin, OUTPUT);
   pinMode(TestFiringArmingLEDPPin, OUTPUT);
-  
+
+  delay(500);
+  digitalWrite(ServoArmingLEDPin, HIGH);
+  digitalWrite(IgniterArmingLEDPin, HIGH);
+  digitalWrite(TestFiringArmingLEDPPin, HIGH);
+  delay(200);
+  digitalWrite(ServoArmingLEDPin, LOW);
+  digitalWrite(IgniterArmingLEDPin, LOW);
+  digitalWrite(TestFiringArmingLEDPPin, LOW);
+  delay(200);
+  digitalWrite(ServoArmingLEDPin, HIGH);
+  digitalWrite(IgniterArmingLEDPin, HIGH);
+  digitalWrite(TestFiringArmingLEDPPin, HIGH);
+  delay(200);
+  digitalWrite(ServoArmingLEDPin, LOW);
+  digitalWrite(IgniterArmingLEDPin, LOW);
+  digitalWrite(TestFiringArmingLEDPPin, LOW);
+  delay(200);
+  digitalWrite(ServoArmingLEDPin, HIGH);
+  digitalWrite(IgniterArmingLEDPin, HIGH);
+  digitalWrite(TestFiringArmingLEDPPin, HIGH);
+  delay(200);
+  digitalWrite(ServoArmingLEDPin, LOW);
+  digitalWrite(IgniterArmingLEDPin, LOW);
+  digitalWrite(TestFiringArmingLEDPPin, LOW);
+ 
 }
 
 void loop() 
 {
   //read servo arming button
-  uint8_t ServoArmingButtonState = digitalRead(ServoArmingButtonPin);
+  uint8_t ServoArmingButtonState = digitalRead(ServoArmingSwitchPin);
   if (ServoArmingButtonState == 1)
   {
     ServoArmed = true;
@@ -69,7 +94,7 @@ void loop()
     digitalWrite(IgniterArmingLEDPin, LOW);
   }
   //read test firing arming button
-  uint8_t TestfiringButtonState = digitalRead(TestFiringArmingButtonPin);
+  uint8_t TestfiringButtonState = digitalRead(TestFiringArmingSwitchPin);
   if (TestfiringButtonState == 1)
   {
     TestFiringArmed = true;
@@ -84,8 +109,8 @@ void loop()
   //Servo safty logic
   if ((ServoArmed && !(IgniterArmed || TestFiringArmed)) == true)
   {
-    uint8_t FuServoState = digitalRead(FuServoButtonPin);
-    uint8_t OxServoState = digitalRead(OxServoButtonPin);
+    uint8_t FuServoState = digitalRead(FuServoSwitchPin);
+    uint8_t OxServoState = digitalRead(OxServoSwitchPin);
 
     if (FuServoState == 1)
     {
@@ -123,8 +148,8 @@ void loop()
   //Testfiring safty logic
   if (TestFiringArmed == true)
   {
-    uint8_t TestFireState = digitalRead(TestFireButtonPin);
-    
+    uint8_t TestFireState = digitalRead(TestFireSwitchPin);
+
     if (TestFireState == 1)
     {
       FuServo.write(90);
@@ -133,7 +158,24 @@ void loop()
       digitalWrite(IgniterPin, HIGH);
       delay(1000);
       digitalWrite(IgniterPin, LOW);
-      delay(5000);
+
+      //allows for controller to abort test fire by closing the valves if the armed switch is released
+      while(TestFiringArmed == true)
+      {
+        FuServo.write(90);
+        OxServo.write(90);
+
+        TestfiringButtonState = digitalRead(TestFireSwitchPin);
+        if (TestFireSwitchPin == 1)
+        {
+          TestFiringArmed = true;
+        }
+        else
+        {
+          TestFiringArmed = false;
+        }
+      }
+      delay(10000);
     }
     else
     {

@@ -165,8 +165,8 @@ void loop()
         FuServo.write(90);
         OxServo.write(90);
 
-        TestfiringButtonState = digitalRead(TestFireSwitchPin);
-        if (TestFireSwitchPin == 1)
+        TestfiringButtonState = digitalRead(TestFiringArmingSwitchPin);
+        if (TestfiringButtonState == 1)
         {
           TestFiringArmed = true;
         }

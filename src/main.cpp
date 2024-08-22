@@ -160,7 +160,8 @@ void loop()
       digitalWrite(IgniterPin, LOW);
 
       //allows for controller to abort test fire by closing the valves if the armed switch is released
-      while(TestFiringArmed == true)
+      uint64_t StartTime = millis();
+      while((TestFiringArmed == true) && ((millis() - StartTime) < 10000))
       {
         FuServo.write(90);
         OxServo.write(90);

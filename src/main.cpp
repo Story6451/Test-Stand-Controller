@@ -146,7 +146,7 @@ void loop()
   }
 
   //Testfiring safty logic
-  if (TestFiringArmed == true)
+  if ((TestFiringArmed == true) && (ServoArmed == true) && (IgniterArmed == true))
   {
     uint8_t TestFireState = digitalRead(TestFireSwitchPin);
 

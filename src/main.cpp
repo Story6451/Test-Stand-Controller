@@ -175,6 +175,8 @@ void loop()
           TestFiringArmed = false;
         }
       }
+      FuServo.write(0);
+      OxServo.write(0);
       delay(10000);
     }
     else

@@ -106,6 +106,7 @@ void loop()
     digitalWrite(TestFiringArmingLEDPPin, LOW);
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////
   //Servo safty logic
   if ((ServoArmed && !(IgniterArmed || TestFiringArmed)) == true)
   {
@@ -161,7 +162,7 @@ void loop()
 
       //allows for controller to abort test fire by closing the valves if the armed switch is released
       uint64_t StartTime = millis();
-      while((TestFiringArmed == true) && ((millis() - StartTime) < 10000))
+      while((TestFiringArmed == true) && ((millis() - StartTime) < 5000))
       {
         FuServo.write(90);
         OxServo.write(90);

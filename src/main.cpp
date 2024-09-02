@@ -1,19 +1,25 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-const uint8_t OxServoPin = 1;
-const uint8_t FuServoPin = 2;
-const uint8_t IgniterPin = 3;
-const uint8_t ServoArmingSwitchPin = 4;
-const uint8_t ServoArmingLEDPin = 5;
-const uint8_t IgniterArmingButtonPin = 6;
-const uint8_t IgniterArmingLEDPin = 7;
-const uint8_t TestFiringArmingSwitchPin = 8;
-const uint8_t TestFiringArmingLEDPPin = 9;
-const uint8_t OxServoSwitchPin = 10;
-const uint8_t FuServoSwitchPin = 11;
-const uint8_t IgniterButtonPin = 12;
-const uint8_t TestFireSwitchPin = 13;
+//servo pins
+const uint8_t OxServoPin = 9;
+const uint8_t FuServoPin = 10;
+
+//led pins
+const uint8_t ServoArmingLEDPin = 2;
+const uint8_t IgniterArmingLEDPin = 3;
+const uint8_t TestFiringArmingLEDPPin = 4;
+
+//switch pins
+const uint8_t ServoArmingSwitchPin = 5;
+const uint8_t ServoSwitchPin = 6;
+const uint8_t IgniterArmingButtonPin = 7;
+const uint8_t IgniterButtonPin = 8;
+const uint8_t TestFiringArmingSwitchPin = 11;
+const uint8_t TestFireSwitchPin = 12;
+
+//other pins
+const uint8_t IgniterPin = 13;
 
 bool ServoArmed = false;
 bool IgniterArmed = false;
@@ -31,8 +37,9 @@ void setup()
   pinMode(ServoArmingSwitchPin, INPUT);
   pinMode(IgniterArmingButtonPin, INPUT);
   pinMode(TestFiringArmingSwitchPin, INPUT);
-  pinMode(OxServoSwitchPin, INPUT);
-  pinMode(FuServoSwitchPin, INPUT);
+  //pinMode(OxServoSwitchPin, INPUT);
+  //pinMode(FuServoSwitchPin, INPUT);
+  pinMode(ServoSwitchPin, INPUT);
   pinMode(IgniterButtonPin, INPUT);
   pinMode(TestFireSwitchPin, INPUT);
 
@@ -110,17 +117,20 @@ void loop()
   //Servo safty logic
   if ((ServoArmed && !(IgniterArmed || TestFiringArmed)) == true)
   {
-    uint8_t FuServoState = digitalRead(FuServoSwitchPin);
-    uint8_t OxServoState = digitalRead(OxServoSwitchPin);
+    uint8_t ServoState = digitalRead(ServoSwitchPin);
+    //uint8_t OxServoState = digitalRead(OxServoSwitchPin);
 
-    if (FuServoState == 1)
+    if (ServoState == 1)
     {
       FuServo.write(90);
+      OxServo.write(90);
     }
     else
     {
       FuServo.write(0);
+      OxServo.write(0);
     }
+    /*
     if (OxServoState == 1)
     {
       OxServo.write(90);
@@ -129,6 +139,7 @@ void loop()
     {
       OxServo.write(0);
     }
+    */
   }
 
   //Igniter safty logic

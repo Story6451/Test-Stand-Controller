@@ -12,10 +12,9 @@ const uint8_t TestFiringArmingLEDPPin = 4;
 
 //switch pins
 const uint8_t ServoArmingSwitchPin = 5;
-const uint8_t ServoSwitchPin = 6;
-const uint8_t IgniterArmingButtonPin = 7;
-const uint8_t IgniterButtonPin = 8;
-const uint8_t TestFiringArmingSwitchPin = 11;
+const uint8_t IgniterArmingSwitchPin = 6;
+const uint8_t ServoSwitchPin = 7;
+const uint8_t IgniterSwitchPin = 8;
 const uint8_t TestFireSwitchPin = 12;
 
 //other pins
@@ -30,17 +29,16 @@ Servo OxServo;
 
 void setup()
 {
+  Serial.begin(9600);
   FuServo.attach(FuServoPin);
   OxServo.attach(OxServoPin);
 
   pinMode(IgniterPin, OUTPUT);
   pinMode(ServoArmingSwitchPin, INPUT);
-  pinMode(IgniterArmingButtonPin, INPUT);
-  pinMode(TestFiringArmingSwitchPin, INPUT);
-  //pinMode(OxServoSwitchPin, INPUT);
-  //pinMode(FuServoSwitchPin, INPUT);
+  pinMode(IgniterArmingSwitchPin, INPUT);
+  //pinMode(TestFiringArmingSwitchPin, INPUT);
   pinMode(ServoSwitchPin, INPUT);
-  pinMode(IgniterButtonPin, INPUT);
+  pinMode(IgniterSwitchPin, INPUT);
   pinMode(TestFireSwitchPin, INPUT);
 
   pinMode(ServoArmingLEDPin, OUTPUT);
@@ -77,8 +75,8 @@ void setup()
 void loop() 
 {
   //read servo arming button
-  uint8_t ServoArmingButtonState = digitalRead(ServoArmingSwitchPin);
-  if (ServoArmingButtonState == 1)
+  uint8_t ServoArmingSwitchState = digitalRead(ServoArmingSwitchPin);
+  if (ServoArmingSwitchState == 1)
   {
     ServoArmed = true;
     digitalWrite(ServoArmingLEDPin, HIGH);
@@ -88,9 +86,10 @@ void loop()
     ServoArmed = false;
     digitalWrite(ServoArmingLEDPin, LOW);
   }
+  
   //read igniter arming button
-  uint8_t IgniterArmingButtonState = digitalRead(IgniterArmingButtonPin);
-  if (IgniterArmingButtonState == 1)
+  uint8_t IgniterArmingSwitchState = digitalRead(IgniterArmingSwitchPin);
+  if (IgniterArmingSwitchState == 1)
   {
     IgniterArmed = true;
     digitalWrite(IgniterArmingLEDPin, HIGH);
@@ -100,9 +99,9 @@ void loop()
     IgniterArmed = false;
     digitalWrite(IgniterArmingLEDPin, LOW);
   }
-  //read test firing arming button
-  uint8_t TestfiringButtonState = digitalRead(TestFiringArmingSwitchPin);
-  if (TestfiringButtonState == 1)
+  
+  
+  if ((ServoArmed == true) && (IgniterArmed == true))
   {
     TestFiringArmed = true;
     digitalWrite(TestFiringArmingLEDPPin, HIGH);
@@ -112,16 +111,17 @@ void loop()
     TestFiringArmed = false;
     digitalWrite(TestFiringArmingLEDPPin, LOW);
   }
-
+  
+  Serial.print(ServoArmingSwitchState);Serial.println(IgniterArmingSwitchState);
   //////////////////////////////////////////////////////////////////////////////////////
   //Servo safty logic
+  
   if ((ServoArmed && !(IgniterArmed || TestFiringArmed)) == true)
   {
     uint8_t ServoState = digitalRead(ServoSwitchPin);
-    //uint8_t OxServoState = digitalRead(OxServoSwitchPin);
-
     if (ServoState == 1)
     {
+      Serial.print("Servo");
       FuServo.write(90);
       OxServo.write(90);
     }
@@ -130,25 +130,15 @@ void loop()
       FuServo.write(0);
       OxServo.write(0);
     }
-    /*
-    if (OxServoState == 1)
-    {
-      OxServo.write(90);
-    }
-    else
-    {
-      OxServo.write(0);
-    }
-    */
   }
 
   //Igniter safty logic
-  if ((ServoArmed && !(IgniterArmed || TestFiringArmed)) == true)
+  if ((IgniterArmed && !(ServoArmed || TestFiringArmed)) == true)
   {
-    uint8_t IgniterState = digitalRead(IgniterButtonPin);
-
+    uint8_t IgniterState = digitalRead(IgniterSwitchPin);
     if (IgniterState == 1)
     {
+      Serial.print("Igniter");
       digitalWrite(IgniterPin, HIGH);
     }
     else
@@ -158,12 +148,13 @@ void loop()
   }
 
   //Testfiring safty logic
-  if ((TestFiringArmed == true) && (ServoArmed == true) && (IgniterArmed == true))
+  if (TestFiringArmed == true)
   {
     uint8_t TestFireState = digitalRead(TestFireSwitchPin);
-
+    Serial.print("Test firing armed"); Serial.print(TestFireState);
     if (TestFireState == 1)
     {
+      Serial.println("Started test fire!!!");
       FuServo.write(90);
       OxServo.write(90);
       delay(250);
@@ -175,11 +166,12 @@ void loop()
       uint64_t StartTime = millis();
       while((TestFiringArmed == true) && ((millis() - StartTime) < 5000))
       {
+        Serial.println("Firing!!!!");
         FuServo.write(90);
         OxServo.write(90);
 
-        TestfiringButtonState = digitalRead(TestFiringArmingSwitchPin);
-        if (TestfiringButtonState == 1)
+        TestFireState = digitalRead(TestFireSwitchPin);
+        if (TestFireState == 1)
         {
           TestFiringArmed = true;
         }
@@ -190,7 +182,9 @@ void loop()
       }
       FuServo.write(0);
       OxServo.write(0);
+      Serial.println("Finished test fire!!!");
       delay(10000);
+      while(1);
     }
     else
     {
@@ -199,4 +193,6 @@ void loop()
       digitalWrite(IgniterPin, LOW);
     }
   }
+  
+  
 }

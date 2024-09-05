@@ -18,7 +18,7 @@ const uint8_t IgniterSwitchPin = 8;
 const uint8_t TestFireSwitchPin = 12;
 
 //other pins
-const uint8_t IgniterPin = 13;
+const uint8_t IgniterPin = 11;
 
 bool ServoArmed = false;
 bool IgniterArmed = false;

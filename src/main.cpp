@@ -112,7 +112,7 @@ void loop()
     digitalWrite(TestFiringArmingLEDPPin, LOW);
   }
   
-  Serial.print(ServoArmingSwitchState);Serial.println(IgniterArmingSwitchState);
+  //Serial.print(ServoArmingSwitchState);Serial.println(IgniterArmingSwitchState);
   //////////////////////////////////////////////////////////////////////////////////////
   //Servo safty logic
   
@@ -122,15 +122,12 @@ void loop()
     if (ServoState == 1)
     {
       Serial.print("Servo");
-      FuServo.write(90);
-      OxServo.write(90);
-    }
-    else
-    {
       FuServo.write(0);
       OxServo.write(0);
     }
   }
+  FuServo.write(90);
+  OxServo.write(90);
 
   //Igniter safty logic
   if ((IgniterArmed && !(ServoArmed || TestFiringArmed)) == true)
@@ -155,8 +152,8 @@ void loop()
     if (TestFireState == 1)
     {
       Serial.println("Started test fire!!!");
-      FuServo.write(90);
-      OxServo.write(90);
+      FuServo.write(0);
+      OxServo.write(0);
       delay(250);
       digitalWrite(IgniterPin, HIGH);
       delay(1000);
@@ -167,8 +164,8 @@ void loop()
       while((TestFiringArmed == true) && ((millis() - StartTime) < 5000))
       {
         Serial.println("Firing!!!!");
-        FuServo.write(90);
-        OxServo.write(90);
+        FuServo.write(0);
+        OxServo.write(0);
 
         TestFireState = digitalRead(TestFireSwitchPin);
         if (TestFireState == 1)
@@ -180,16 +177,16 @@ void loop()
           TestFiringArmed = false;
         }
       }
-      FuServo.write(0);
-      OxServo.write(0);
+      FuServo.write(90);
+      OxServo.write(90);
       Serial.println("Finished test fire!!!");
       delay(10000);
       while(1);
     }
     else
     {
-      FuServo.write(0);
-      OxServo.write(0);
+      FuServo.write(90);
+      OxServo.write(90);
       digitalWrite(IgniterPin, LOW);
     }
   }
